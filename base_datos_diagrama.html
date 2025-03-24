@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama ER Sistema Veterinaria</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/9.4.3/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            overflow: auto;
+        }
+        .legend {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 5px solid #3498db;
+        }
+        .legend h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        .legend ul {
+            padding-left: 20px;
+        }
+        .download-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .download-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Diagrama Entidad-Relación Sistema Veterinaria</h1>
+        
+        <div class="mermaid">
+erDiagram
+    CLIENTES ||--o{ MASCOTAS : tiene
+    CLIENTES ||--o{ FACTURAS : recibe
+    CLIENTES ||--o{ NOTIFICACIONES : recibe
+    
+    MASCOTAS ||--o{ CITAS : agenda
+    MASCOTAS ||--o{ HISTORIAL_CLINICO : tiene
+    MASCOTAS ||--o{ SOLICITUDES_LABORATORIO : requiere
+    
+    EMPLEADOS ||--o{ CITAS : atiende
+    EMPLEADOS ||--o{ HISTORIAL_CLINICO : registra
+    EMPLEADOS ||--o{ HORARIOS_EMPLEADOS : tiene
+    EMPLEADOS ||--o{ MOVIMIENTOS_INVENTARIO : realiza
+    EMPLEADOS ||--o{ SOLICITUDES_LABORATORIO : solicita
+    EMPLEADOS ||--o{ USUARIOS_SISTEMA : asociado
+    
+    CITAS ||--o{ HISTORIAL_CLINICO : genera
+    CITAS ||--o{ MOVIMIENTOS_INVENTARIO : consume
+    CITAS ||--o{ DETALLES_FACTURA : factura
+    CITAS ||--o{ SOLICITUDES_LABORATORIO : origina
+    
+    CATEGORIAS_INVENTARIO ||--o{ INVENTARIO : clasifica
+    
+    INVENTARIO ||--o{ MOVIMIENTOS_INVENTARIO : registra
+    INVENTARIO ||--o{ DETALLES_FACTURA : contiene
+    
+    FACTURAS ||--o{ DETALLES_FACTURA : detalla
+    FACTURAS ||--o{ PAGOS : recibe
+    
+    LABORATORIOS ||--o{ SOLICITUDES_LABORATORIO : procesa
+    
+    SOLICITUDES_LABORATORIO ||--o{ RESULTADOS_LABORATORIO : genera
+    
+    CLIENTES {
+        NUMBER id_cliente PK
+        VARCHAR2 rut UK
+        VARCHAR2 nombres
+        VARCHAR2 apellidos
+        VARCHAR2 email
+        VARCHAR2 telefono
+        VARCHAR2 direccion
+        VARCHAR2 ciudad
+        DATE fecha_registro
+        NUMBER activo
+    }
+    
+    MASCOTAS {
+        NUMBER id_mascota PK
+        NUMBER id_cliente FK
+        VARCHAR2 nombre
+        VARCHAR2 especie
+        VARCHAR2 raza
+        DATE fecha_nacimiento
+        CHAR sexo
+        VARCHAR2 color
+        NUMBER peso
+        NUMBER activo
+        DATE fecha_registro
+    }
+    
+    EMPLEADOS {
+        NUMBER id_empleado PK
+        VARCHAR2 rut UK
+        VARCHAR2 nombres
+        VARCHAR2 apellidos
+        VARCHAR2 cargo
+        VARCHAR2 especialidad
+        VARCHAR2 email
+        VARCHAR2 telefono
+        DATE fecha_contratacion
+        NUMBER activo
+    }
+    
+    HORARIOS_EMPLEADOS {
+        NUMBER id_horario PK
+        NUMBER id_empleado FK
+        NUMBER dia_semana
+        DATE hora_inicio
+        DATE hora_fin
+    }
+    
+    CITAS {
+        NUMBER id_cita PK
+        NUMBER id_mascota FK
+        NUMBER id_empleado FK
+        DATE fecha_hora
+        VARCHAR2 tipo_cita
+        VARCHAR2 motivo
+        VARCHAR2 estado
+        VARCHAR2 notas
+    }
+    
+    HISTORIAL_CLINICO {
+        NUMBER id_historial PK
+        NUMBER id_mascota FK
+        NUMBER id_cita FK
+        NUMBER id_empleado FK
+        DATE fecha_consulta
+        VARCHAR2 motivo_consulta
+        VARCHAR2 diagnostico
+        VARCHAR2 tratamiento
+        VARCHAR2 observaciones
+    }
+    
+    CATEGORIAS_INVENTARIO {
+        NUMBER id_categoria PK
+        VARCHAR2 nombre
+        VARCHAR2 descripcion
+    }
+    
+    INVENTARIO {
+        NUMBER id_producto PK
+        NUMBER id_categoria FK
+        VARCHAR2 codigo
+        VARCHAR2 nombre
+        VARCHAR2 descripcion
+        NUMBER stock_actual
+        NUMBER stock_minimo
+        VARCHAR2 unidad_medida
+        NUMBER precio_costo
+        NUMBER precio_venta
+        DATE fecha_vencimiento
+        VARCHAR2 proveedor
+        NUMBER activo
+    }
+    
+    MOVIMIENTOS_INVENTARIO {
+        NUMBER id_movimiento PK
+        NUMBER id_producto FK
+        VARCHAR2 tipo_movimiento
+        NUMBER cantidad
+        DATE fecha_movimiento
+        NUMBER id_cita FK
+        NUMBER id_empleado FK
+        VARCHAR2 observacion
+    }
+    
+    FACTURAS {
+        NUMBER id_factura PK
+        VARCHAR2 numero_factura
+        NUMBER id_cliente FK
+        DATE fecha_emision
+        NUMBER monto_subtotal
+        NUMBER monto_iva
+        NUMBER monto_total
+        VARCHAR2 estado
+        VARCHAR2 forma_pago
+        VARCHAR2 observaciones
+    }
+    
+    DETALLES_FACTURA {
+        NUMBER id_detalle PK
+        NUMBER id_factura FK
+        NUMBER id_cita FK
+        NUMBER id_producto FK
+        VARCHAR2 descripcion
+        NUMBER cantidad
+        NUMBER precio_unitario
+        NUMBER subtotal
+    }
+    
+    PAGOS {
+        NUMBER id_pago PK
+        NUMBER id_factura FK
+        DATE fecha_pago
+        NUMBER monto
+        VARCHAR2 metodo_pago
+        VARCHAR2 referencia_pago
+        VARCHAR2 estado
+    }
+    
+    LABORATORIOS {
+        NUMBER id_laboratorio PK
+        VARCHAR2 nombre
+        VARCHAR2 direccion
+        VARCHAR2 telefono
+        VARCHAR2 email
+        VARCHAR2 contacto_nombre
+        NUMBER activo
+    }
+    
+    SOLICITUDES_LABORATORIO {
+        NUMBER id_solicitud PK
+        NUMBER id_laboratorio FK
+        NUMBER id_mascota FK
+        NUMBER id_cita FK
+        NUMBER id_empleado FK
+        VARCHAR2 tipo_examen
+        DATE fecha_solicitud
+        DATE fecha_entrega_esperada
+        VARCHAR2 estado
+        VARCHAR2 observaciones
+    }
+    
+    RESULTADOS_LABORATORIO {
+        NUMBER id_resultado PK
+        NUMBER id_solicitud FK
+        DATE fecha_resultado
+        BLOB archivo_adjunto
+        VARCHAR2 nombre_archivo
+        CLOB resultado_texto
+        VARCHAR2 observaciones
+    }
+    
+    NOTIFICACIONES {
+        NUMBER id_notificacion PK
+        NUMBER id_cliente FK
+        VARCHAR2 tipo
+        VARCHAR2 titulo
+        VARCHAR2 mensaje
+        DATE fecha_creacion
+        DATE fecha_envio
+        VARCHAR2 estado
+        VARCHAR2 canal
+    }
+    
+    USUARIOS_SISTEMA {
+        NUMBER id_usuario PK
+        NUMBER id_empleado FK
+        VARCHAR2 username
+        VARCHAR2 password
+        VARCHAR2 rol
+        DATE ultimo_acceso
+        NUMBER activo
+    }
+        </div>
+        
+        <div class="legend">
+            <h3>Leyenda</h3>
+            <ul>
+                <li><strong>PK</strong>: Clave Primaria (Primary Key)</li>
+                <li><strong>FK</strong>: Clave Foránea (Foreign Key)</li>
+                <li><strong>UK</strong>: Clave Única (Unique Key)</li>
+                <li><strong>||--o{</strong>: Relación uno a muchos</li>
+            </ul>
+        </div>
+        
+        <button class="download-btn" onclick="saveSVG()">Descargar como SVG</button>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            er: { 
+                useMaxWidth: false
+            }
+        });
+        
+        function saveSVG() {
+            const svgElement = document.querySelector('svg');
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const svgUrl = URL.createObjectURL(svgBlob);
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = svgUrl;
+            downloadLink.download = 'diagrama_er_veterinaria.svg';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+</body>
+</html>
